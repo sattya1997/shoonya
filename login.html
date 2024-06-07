@@ -93,7 +93,7 @@
       <div class="loading-icon"></div>
     </div>
   </div>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./axios.min.js"></script>
   <script>
     const apiUrl = 'https://api.shoonya.com/NorenWClientTP/QuickAuth';
     const localStorageKey = 'userToken'; // Key to store susertoken in localStorage
@@ -130,7 +130,7 @@
             if (data.stat === 'Ok') {
               localStorage.setItem(localStorageKey, data.susertoken);
               loadingContainer.style.display = "none";
-              window.location.href = 'dashboard.html';
+              window.location.href = './index.html';
             } else {
               alert('Login failed. Please check your password.');
             }
