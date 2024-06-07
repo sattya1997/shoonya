@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shoonya Dashboard</title>
+  <script src="./axios.min.js"></script>
+  <script src="./config.js"></script>
+  <style>
+    * {
+      top: 0;
+      left: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      width: 100%;
+      height: auto;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+
+    #nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 40px;
+      background-color: rgb(28, 28, 28);
+      color: aliceblue;
+    }
+
+    #nav-bar button {
+      width: 40px;
+      height: 20px;
+      margin-right: 10px;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 700;
+      background-color: #e2a8a8;
+      border-radius: 3px;
+      border: none;
+      transition: all 0.3s ease;
+      color: #242725;
+    }
+
+    #nav-bar button:hover {
+      transform: scale(1.05);
+      background-color: #ff8888;
+    }
+
+    #nav-bar button:active {
+      transform: scale(0.95);
+      background-color: #ff8888;
+    }
+
+    #main-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      justify-items: center;
+      justify-self: center;
+      text-align: center;
+      align-items: center;
+      padding: 5px;
+    }
+
+    #search-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 70%;
+      align-items: center;
+      align-content: center;
+      padding: 20px;
+    }
+
+    #search-box {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      padding: 20px;
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #search-icon {
+      margin-left: -25px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #search-icon:hover {
+      transform: scale(1.2);
+    }
+
+    #search-icon:active {
+      transform: scale(0.90);
+    }
+
+    #search-result-container {
+      position: absolute;
+      top: 24%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      overflow-x: hidden;
+      display: none;
+      z-index: 5;
+    }
+
+    #results-list {
+      list-style: none;
+      padding: 10px 10px 10px 10px;
+      border-radius: 7px;
+      text-align: center;
+      font-size: 11px;
+      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+      width: 65vw;
+    }
+
+    #results-list button {
+      width: 35%;
+      background-color: #518fd1;
+      border: 1px solid rgb(0, 79, 206);
+      border-radius: 2px;
+      transition: transform 0.3s ease;
+      color: white;
+      font-weight: 600;
+    }
+
+    #results-list button:hover {
+      background-color: #0e79ec;
+      transform: scale(1.05);
+    }
+
+    #results-list button:active {
+      transform: scale(.95);
+    }
+
+    .result-item {
+      background-color: #f9f9f9;
+      border: 1px solid #e1e1e1;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    .close-modal {
+      float: right;
+      cursor: pointer;
+      background-color: red;
+      color: white;
+      font-size: 14px;
+      border: none;
+      border-radius: 5.5px;
+      padding: 0px 5px 2px 5px;
+      width: 12px;
+      align-self: right;
+    }
+
+    .close-modal:after {
+      content: "✖";
+    }
+
+    .search-list-btn {
+      height: 20px;
+      margin-left: 10px;
+      font-size: 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    #details-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+      margin: 10px;
+      width: 300px;
+    }
+
+    .card button {
+      font-size: 12px;
+      padding: 1px 10px;
+      border: none;
+      border-radius: 2px;
+      transition: transform 0.3s ease;
+      color: white;
+      font-weight: 600;
+    }
+
+    .card button:hover {
+      transform: scale(1.05);
+    }
+
+    .card button:active {
+      transform: scale(0.95);
+    }
+
+    .card-header {
+      font-weight: 500;
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    .card-content {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.3;
+    }
+
+    .card-content>div {
+      margin-bottom: 10px;
+    }
+
+    .card-content label {
+      display: flex;
+      justify-content: center;
+      justify-items: center;
+      text-align: center;
+    }
+
+    label p {
+      font-size: 12px;
+      font-weight: 500;
+      margin-right: 5px;
+    }
+
+    .fontBolder {
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .orders,
+    .info {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .buy-orders,
+    .sell-orders,
+    .sub-info {
+      display: grid;
+      justify-content: center;
+    }
+
+    .loader {
+      border: 4px solid #292424;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      animation: spin 1s ease infinite;
+      display: none;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 70%;
+      background-color: #f9f9f9;
+      border: 1px solid #e1e1e1;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 480px) {
+      .orders-list {
+        width: 100%;
+        padding: 0px;
+      }
+    }
+
+    .orders-list h4 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #257415;
+    }
+
+    .buy-order-list,
+    .sell-order-list,
+    .other-order-list .place-order-list {
+      margin-bottom: 10px;
+    }
+
+    .buy-order-list h5,
+    .sell-order-list h5,
+    .other-order-list h5,
+    .place-order-list h5 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .place-order-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #ffffff;
+      border: 1px solid #007bff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+      padding: 20px 5px 20px 5px;
+      min-width: 30%;
+      margin: auto;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .place-order-list span {
+      align-self: self-end;
+    }
+
+    .place-order-list button {
+      cursor: pointer;
+      align-self: center;
+      width: auto;
+      padding: 5 15px 5 15px;
+      background-color: #599ee8;
+      border: 1px solid rgb(0, 79, 206);
+      border-radius: 3px;
+      color: whitesmoke;
+      transition: transform 0.3s ease;
+    }
+
+    .place-order-list button:hover {
+      transform: scale(1.05);
+    }
+
+    .place-order-list button:active {
+      transform: scale(0.95);
+    }
+
+    h5 {
+      color: #007bff;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .place-order-list form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .place-order-list label {
+      font-weight: bold;
+      color: #333333;
+      margin-bottom: 5px;
+    }
+
+    .place-order-list input[type="number"],
+    .place-order-list input[type="text"] {
+      padding: 5px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      line-height: 1.5;
+      width: 50%;
+    }
+
+    .place-order-list button[type="submit"] {
+      width: 60%;
+      padding: 6px 5px;
+      background-color: #28a745;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+      align-self: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .place-order-list button[type="submit"]:hover {
+      transform: scale(1.05);
+      background-color: #218838;
+    }
+
+    .place-order-list button[type="submit"]:active {
+      transform: scale(.95);
+    }
+
+    #place-order-top-label {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    #place-order-top-label label {
+      padding: 1px 30px;
+      background-color: #d1eaff;
+      border-radius: 3px;
+      margin: 5px 5px
+    }
+
+    .buy-order-list h5 {
+      color: green;
+    }
+
+    .sell-order-list h5 {
+      color: red;
+    }
+
+    .other-order-list h5 {
+      color: rgb(45, 43, 43);
+    }
+
+    .buy-order-list label {
+      font-size: 10px;
+      font-weight: 700;
+      color: green;
+    }
+
+    .sell-order-list label {
+      font-size: 10px;
+      font-weight: 700;
+      color: red;
+    }
+
+    .other-order-list label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgb(66, 69, 31);
+    }
+
+    .buy-order-list span {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgb(0, 0, 0);
+    }
+
+    .sell-order-list span {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgb(0, 0, 0);
+    }
+
+    .other-order-list span {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgb(0, 0, 0);
+    }
+
+    /* Buttons for modify and cancel orders */
+    .single-order-list button {
+      padding: 3px 8px;
+      margin-right: 10px;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: transform 0.5s ease;
+    }
+
+    .single-order-list button:hover {
+      background-color: #1b40e7;
+      transform: scale(1.05);
+    }
+
+    .single-order-list button:active {
+      transform: scale(.95);
+    }
+
+    .single-order-list {
+      background-color: #f5f1f1;
+      border: 0.5px solid #2d2929;
+      border-radius: 4px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(249, 146, 146, 0.1);
+      padding: 5px;
+      margin: 5px;
+    }
+
+    .modify {
+      background-color: rgb(66, 125, 219);
+    }
+
+    .cancel {
+      background-color: red;
+    }
+
+    .auto {
+      background-color: green;
+    }
+
+    #msg {
+      font-size: 13px;
+      background-color: #caffa7;
+      color: #242725;
+      font-weight: 600;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      padding: 0 10px 0 10px;
+      border-radius: 5px;
+      transition: all 0.3s ease-out;
+      opacity: 0;
+    }
+
+    #nifty-tag,
+    .order-tag {
+      margin: 1px 0;
+      font-size: 11px;
+      background-color: #211c1c;
+      color: whitesmoke;
+      font-weight: 600;
+      border-radius: 2px;
+      padding: 1px;
+      width: 100%;
+    }
+
+    #orders-tag {
+      display: flex;
+      justify-content: center;
+      padding: 2px;
+      width: 100%;
+    }
+
+    .order-tag {
+      background-color: #4c3838;
+      padding: 2px;
+      margin: 1px;
+    }
+
+    .disabled-button {
+      filter: blur(1px);
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #user-id-text {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      font-family: monospace;
+    }
+
+    #nav-bar-cash-balance {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      font-family: monospace;
+      color: #28e654;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 24px;
+      margin-bottom: 5px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      -webkit-transform: translateX(16px);
+      -ms-transform: translateX(16px);
+      transform: translateX(16px);
+    }
+
+    .slider.round {
+      border-radius: 24px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+
+    /* Styling for the toolbar */
+    #depth-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #2c3e50;
+      padding: 5px;
+      color: white;
+      width: 100%;
+      max-width: 700px;
+      font-size: 12px;
+    }
+
+    #depth-toolbar span {
+      margin: 0 5px;
+    }
+
+    #depth-toolbar label {
+      margin-right: 5px;
+    }
+
+    #depth-toolbar input[type="checkbox"] {
+      accent-color: #18bc9c;
+    }
+
+    #depth-toolbar button {
+      background-color: #18bc9c;
+      color: white;
+      border: none;
+      padding: 3px 7px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #depth-toolbar button:hover {
+      background-color: #16a085;
+    }
+
+    #depth-toolbar input[type="file"] {
+      border: 1px solid #34495e;
+      padding: 5px;
+      border-radius: 5px;
+      color: white;
+      background-color: transparent;
+      cursor: pointer;
+    }
+
+    /* Styling for the table */
+    #table-list {
+      margin-top: 20px;
+      overflow-x: auto;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    table th,
+    table td {
+      padding: 5px;
+      border-bottom: 1px solid #00ccff;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    table th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    table tr {
+      font-size: 12px;
+      ;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #ecf0f1;
+    }
+
+    table tr:hover {
+      background-color: #bdc3c7;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="nav-bar">
+    <span id="user-id-text"></span>
+    <span id="nav-bar-cash-balance">Loading...</span>
+    <button id="logout-btn">Logout</button>
+  </div>
+  <div id="main-container">
+    <div id="depth-toolbar">
+      <span><label for="enable-checkbox">Enable Depth</label><input type="checkbox" id="enable-checkbox"></span>
+      <span><button id="save-button">Download</button></span>
+      <span>
+        <label for="custom-file-upload-button">Choose</label>
+        <button id="custom-file-upload-button" class="custom-file-upload">File</button>
+        <input type="file" id="file-input" accept=".json" style="display: none;">
+      </span>
+    </div>
+    <div id="table-list"></div>
+    <div id="search-container">
+      <div id="search-box">
+        <input type="text" id="search-input" placeholder="Search...">
+        <span id="search-icon">🔍</span>
+      </div>
+      <div id="search-result-container">
+        <span class="close-modal" id="close-modal"></span>
+        <ul id="results-list"></ul>
+      </div>
+    </div>
+    <div class="loader"></div>
+    <label class="switch">
+      <input type="checkbox" id="toggleSwitch">
+      <span class="slider round"></span>
+    </label>
+    <div id="details-list">
+    </div>
+    <div class="orders-list">
+      <div id="nifty-tag"></div>
+      <div id="orders-tag"></div>
+      <h5>Place order:</h5>
+      <div class="place-order-list" id="place-order-list">
+        <button id="blank-order-btn">Create Blank order</button>
+      </div>
+      <p id="msg">Success</p>
+      <div class="buy-order-list" id="buy-order-list">
+        <h5>Buy orders:</h5>
+      </div>
+      <div class="sell-order-list" id="sell-order-list">
+        <h5>Sell orders:</h5>
+      </div>
+      <div class="other-order-list" id="other-order-list">
+        <h5>Other orders:</h5>
+      </div>
+    </div>
+  </div>
+  <script src="./socket.js"></script>
+  <script>
+    var stockToken = '';
+    const userToken = localStorage.getItem("userToken");
+    const baseUrl = "https://api.shoonya.com";
+    const resultsList = document.getElementById('results-list');
+    var isLoggedIn = false;
+    if (!userToken) {
+      window.location.href = "./login.html";
+    } else {
+      postRequest('userDetails', { uid: uid }, userToken)
+        .then((res) => {
+          if (res.data.stat === 'Ok') {
+            document.getElementById('user-id-text').innerHTML = 'Welcome ' + res.data.actid;
+            getBalance();
+            connectWebSocket();
+            getOrders();
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Some errors happened. Please login again');
+          localStorage.removeItem('userToken')
+          window.location.href = "./login.html";
+        });
+    }
+
+    document.getElementById('search-icon').addEventListener('click', searchScrip);
+    document.getElementById("close-modal").addEventListener("click", closeSearchList);
+    document.getElementById("logout-btn").addEventListener("click", logout);
+    document.getElementById('blank-order-btn').addEventListener('click', placeBlankOrder);
+
+    const searchInput = document.getElementById('search-input');
+
+    searchInput.addEventListener('keyup', function (event) {
+      if (event.key === 'Enter') {
+        searchScrip();
+      }
+    });
+
+    function closeOrderPlaceForm() {
+      const orderForm = document.getElementById('close-order-form').closest('div');
+      orderForm.innerHTML = `<button id="blank-order-btn">Create Blank order</button>`;
+      document.getElementById('blank-order-btn').addEventListener('click', placeBlankOrder);
+    }
+
+    async function searchScrip() {
+      const searchInput = document.getElementById('search-input');
+
+      if (searchInput.value === '' | searchInput.value === undefined) {
+        alert('Please type first before searching');
+        return;
+      }
+      const jData = {
+        uid: uid,
+        stext: searchInput.value.toString(),
+        exch: ["NSE", "BSE"],
+      };
+      const jKey = userToken;
+      showLoader();
+
+      const res = postRequest("searchscrip", jData, jKey);
+
+      res
+        .then((response) => {
+          const data = response.data;
+          if (data.stat === 'Ok') {
+            resultsList.innerHTML = '';
+            htmlData = '';
+            data.values.forEach(item => {
+              htmlData += `
+                <li class="result-item">
+                  <span>${item.exch}: ${item.tsym} - ${item.token}</span><br>
+                  <span>
+                    <button class="search-list-btn" onclick="addTodetailsList('${item.token}')">Add card</button>
+                    <button class="search-list-btn" onclick="addToTagList('${item.token}', '${item.tsym}')">Add tag</button>
+                  </span>
+                </li>
+              `;
+            });
+            resultsList.innerHTML = htmlData;
+            hideLoader();
+            document.getElementById("search-result-container").style.display = "block";
+          } else if (data.stat === 'Not_Ok') {
+            window.location.href = "./login.html";
+          } else {
+            console.log('Search failed:', data.emsg);
+          }
+        }).catch((err) => {
+          console.log(err);
+          hideLoader();
+        });
+    }
+
+    function addToTagList(token, name) {
+      orderNames[token] = name;
+      subscribeTouchline([`NSE|${token}`]);
+    }
+
+    function addTodetailsList(token) {
+      stockTickers.push(token);
+      const detailsData = getDetails(token);
+    }
+
+    async function getDetails(token) {
+      const jData = {
+        uid: uid,
+        token: token.toString(),
+        exch: "NSE",
+      };
+      const jKey = userToken;
+
+      const res = postRequest("getquotes", jData, jKey);
+
+      res
+        .then((response) => {
+          const detailsData = response.data;
+          if (detailsData.stat === 'Ok') {
+            createStockCard(detailsData);
+            closeSearchList();
+          } else if (detailsData.stat === 'Not_Ok') {
+            alert("Some error hapened during get the details");
+          } else {
+            console.log('Search failed:', detailsData.emsg);
+          }
+        }).catch((err) => {
+          console.log(err);
+        });
+    }
+
+    async function logout() {
+      const apiUrl = baseUrl + "/NorenWClientTP/Logout";
+
+      const jData = {
+        jKey: userToken,
+        uid: uid,
+      };
+
+      fetch(apiUrl, {
+        method: "POST",
+        body: JSON.stringify(jData),
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.stat === "Ok") {
+            //have to uncomment later
+            //localStorage.removeItem("userToken");
+            window.location.href = "login.html";
+          } else {
+            alert("Session expires. Please login again.");
+            localStorage.removeItem("userToken");
+            window.location.href = "login.html";
+          }
+        })
+        .catch((error) => {
+          console.error("Error during logout:", error);
+        });
+    }
+
+    function closeSearchList() {
+      document.getElementById("search-result-container").style.display = "none";
+      resultsList.innerHTML = '';
+    }
+
+    var stockData = [];
+    var newOrderType = '';
+
+
+    function closeCard(token) {
+      stockTickers = stockTickers.filter(item => item !== token);
+      document.getElementById('card-' + token).remove();
+    }
+
+    function createStockCard(data) {
+      const detailsList = document.getElementById('details-list');
+      const cardCloseBtn = document.createElement('div');
+      cardCloseBtn.classList.add('close-modal');
+      cardCloseBtn.addEventListener('click', () => {
+        closeCard(data.token);
+      })
+
+      const cardHeader = document.createElement('div');
+      cardHeader.className = 'card-header';
+      cardHeader.innerHTML = data.tsym;
+
+      const cardContent = document.createElement('div');
+      cardContent.className = 'card-content';
+
+      cardContent.appendChild(cardCloseBtn);
+      cardContent.appendChild(cardHeader);
+
+      // Add grouped information
+      const priceInfo = document.createElement('div');
+      priceInfo.classList.add('info');
+      priceInfo.innerHTML = `
+        <div class="sub-info">
+        <label><button data-id="btn-buy-${data.token}" token="${data.token}" class="auto">Buy</button></label>
+        <label><p class="fontBolder">Last Price: </p><p>${data.lp}</p></label>
+        <label><p class="fontBolder">Prev close: </p><p>${data.c}</p></label>
+        <label><p class="fontBolder">Open: </p><p>${data.o}</p></label>
+        <label><p class="fontBolder">High: </p><p>${data.h}</p></label>
+        <label><p class="fontBolder">Low: </p><p>${data.l}</p></label>
+        </div>`;
+
+      priceInfo.innerHTML += `<div class="sub-info">
+        <label><button data-id="btn-sell-${data.token}" token="${data.token}" class="cancel">Sell</button></label>
+        <label><p class="fontBolder">Avg Price: </p><p>${data.ap}</p></label>
+        <label><p class="fontBolder">Trade Time: </p><p>${data.ltt}</p></label>
+        <label><p class="fontBolder">Trade Qty: </p><p>${data.ltq}</p></label>
+        <label><p class="fontBolder">Buy Qty: </p><p>${data.tbq}</p></label>
+        <label><p class="fontBolder">Sell Qty: </p><p>${data.tsq}</p></label>
+        </div>`;
+
+      cardContent.appendChild(priceInfo);
+      //saving
+      // Best Buy Information
+      const orderGroup = document.createElement('div');
+      var htmlData = '';
+
+      // Best Buy Information
+      htmlData += '<div class="orders"><div class="buy-orders">';
+      htmlData += '<label class="fontBolder">Pending buy Orders: </label>';
+      for (let i = 1; i <= 5; i++) {
+        if (data['bp' + i]) {
+          htmlData += data['bp' + i] + ' * ' + data['bq' + i] + '<br>';
+        }
+      }
+      htmlData += '</div>';
+
+      // Best Sell Information
+      htmlData += '<div class="sell-orders">';
+      htmlData += '<label class="fontBolder">Pending sell Orders: </label>';
+      for (let i = 1; i <= 5; i++) {
+        if (data['sp' + i]) {
+          htmlData += data['sp' + i] + ' * ' + data['sq' + i] + '<br>';
+        }
+      }
+      htmlData += '</div></div>';
+
+      orderGroup.innerHTML += htmlData;
+      cardContent.appendChild(orderGroup);
+
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.setAttribute('id', `card-${data['token']}`);
+      card.appendChild(cardContent);
+      detailsList.appendChild(card);
+
+      const buyButtons = document.querySelectorAll('[data-id^="btn-buy-"]');
+      // Add a click event listener to each button
+      buyButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          handleBuyButtonClick(data);
+        }
+        );
+      });
+
+      const sellButtons = document.querySelectorAll('[data-id^="btn-sell-"]');
+      // Add a click event listener to each button
+      sellButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          handleSellButtonClick(data);
+        });
+      });
+    }
+
+    function handleBuyButtonClick(data) {
+      //console.log(`Buy Button clicked! Data ID: ${data["token"]}`);
+      createPlaceOrderForm(data, "buy");
+    }
+
+    function handleSellButtonClick(data) {
+      //console.log(`Sell Button clicked! Data ID: ${data["token"]}`);
+      createPlaceOrderForm(data, "sell");
+    }
+
+    function placeBlankOrder() {
+      const placeOrderListDiv = document.getElementById('place-order-list');
+
+      placeOrderListDiv.innerHTML = `
+        <span class="close-modal" id="close-order-form"></span>
+        <form id="place-order-form" onsubmit="handleBlankOrderSubmit(event)">
+          <div id="place-order-top-label">
+            <label>Cash Balance: <span id="cash-balance"></span></label>
+            <label>Order Value: <span id="order-value"></span></label>
+          </div>
+          <label>Order
+            <input type="text" name="orderType" value="buy">
+          </label>
+          <label>Quantity:
+            <input type="number" name="quantity" value="1" min="1">
+          </label>
+          <label>Price:
+            <input type="number" name="limitPrice" value="0.00" min="0" step="0.05">
+          </label>
+          <label>Token:
+          <input type="number" name="token" value="0">
+          </label>
+          <label>Symbol:
+          <input type="text" name="symbol" value="-EQ">
+          </label>
+          <button type="submit">Submit Order</button>
+        </form>
+      `;
+      document.getElementById('cash-balance').textContent = cashAvailable.toFixed(2);
+      document.getElementById('close-order-form').addEventListener('click', closeOrderPlaceForm);
+      document.querySelector('input[name="quantity"]').addEventListener('input', updateOrderValue);
+      document.querySelector('input[name="limitPrice"]').addEventListener('input', updateOrderValue);
+      updateOrderValue();
+    }
+
+    function handleBlankOrderSubmit(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const quantity = formData.get('quantity');
+      const limitPrice = formData.get('limitPrice');
+      const token = formData.get('token');
+      const symbol = formData.get('symbol');
+      var orderType = formData.get('orderType');
+      orderType = (orderType === 'buy') | (orderType === 'B') ? 'B' : 'S';
+
+      const jData = {
+        uid: uid,
+        actid: uid,
+        trantype: orderType,
+        exch: 'NSE',
+        tsym: symbol,
+        qty: quantity.toString(),
+        dscqty: '0',
+        prctyp: 'LMT',
+        prd: 'C',
+        prc: limitPrice.toString(),
+        ret: 'DAY',
+        token: token,
+      };
+      const jKey = userToken;
+
+      if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+        alert('Warning: Order value exceeds cash balance!');
+        return;
+      }
+
+      postRequest("placeorder", jData, jKey)
+        .then((res) => {
+          const msgElement = document.getElementById('msg');
+          if (res.data && res.data.stat && res.data.stat === 'Ok') {
+            msgElement.innerHTML = 'Success';
+            msgElement.style.opacity = '1';
+            setTimeout(() => {
+              msgElement.style.opacity = '1';
+            }, 1500);
+            setTimeout(() => {
+              msgElement.style.opacity = '0';
+            }, 1500);
+
+            getBalance();
+            getOrders();
+          } else {
+            msgElement.innerHTML = 'Could not modify...';
+            msgElement.style.backgroundColor = '#e88888';
+            msgElement.style.opacity = '1';
+            setTimeout(() => {
+              msgElement.style.opacity = '1';
+
+            }, 1500);
+            setTimeout(() => {
+              msgElement.style.opacity = '0';
+            }, 1500);
+          }
+        }).catch((err) => {
+          console.log(err);
+        });
+    }
+
+    function createPlaceOrderForm(data, orderType) {
+      const stockData = data;
+      const newOrderType = orderType === 'buy' ? 'B' : orderType === 'sell' ? 'S' : 'B';
+      let curPrice = parseFloat(data["lp"]);
+      curPrice += orderType === "buy" ? -(curPrice / 50) : (curPrice / 50);
+
+      const placeOrderListDiv = document.getElementById('place-order-list');
+      placeOrderListDiv.innerHTML = `
+      <span class="close-modal" id="close-order-form"></span>
+        <form id="place-order-form">
+          <div id="place-order-top-label">
+            <label>Cash Balance: <span id="cash-balance"></span></label>
+            <label>Order Value: <span id="order-value"></span></label>
+          </div>
+          <p>${data["tsym"]}</p>
+          <label>Qty:
+            <input type="number" name="quantity" value="1" min="1">
+          </label>
+          <label>Price:
+            <input type="number" name="limitPrice" value="${curPrice.toFixed(1)}" min="0" step="0.05">
+          </label>
+          <input type="hidden" name="token" value="${data["token"]}">
+          <button type="submit">Submit Order</button>
+        </form>
+      `;
+      document.getElementById('cash-balance').textContent = cashAvailable.toFixed(2);
+      document.querySelector('input[name="quantity"]').addEventListener('input', updateOrderValue);
+      document.querySelector('input[name="limitPrice"]').addEventListener('input', updateOrderValue);
+      updateOrderValue();
+      document.getElementById('place-order-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const quantity = formData.get('quantity');
+        const limitPrice = formData.get('limitPrice');
+        const token = formData.get('token');
+
+        if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+          alert('Warning: Order value exceeds cash balance!');
+          return;
+        }
+
+        const jData = {
+          uid: uid,
+          actid: uid,
+          trantype: newOrderType,
+          exch: 'NSE',
+          tsym: stockData["tsym"],
+          qty: quantity.toString(),
+          dscqty: '0',
+          prctyp: 'LMT',
+          prd: 'C',
+          prc: limitPrice.toString(),
+          ret: 'DAY',
+          token: token,
+        };
+        const jKey = userToken;
+
+        postRequest("placeorder", jData, jKey)
+          .then((res) => {
+            const msgElement = document.getElementById('msg');
+            if (res.data && res.data.stat && res.data.stat === 'Ok') {
+              msgElement.innerHTML = 'Ordere placed';
+              msgElement.style.opacity = '1';
+              setTimeout(() => {
+                msgElement.style.opacity = '1';
+
+              }, 1500);
+              setTimeout(() => {
+                msgElement.style.opacity = '0';
+              }, 1500);
+              getBalance();
+              getOrders();
+            } else {
+              msgElement.innerHTML = 'Could not place order...';
+              msgElement.style.backgroundColor = '#e88888';
+              msgElement.style.opacity = '1';
+              setTimeout(() => {
+                msgElement.style.opacity = '1';
+
+              }, 1500);
+              setTimeout(() => {
+                msgElement.style.opacity = '0';
+              }, 1500);
+            }
+          }).catch((err) => {
+            console.log(err);
+          });
+      });
+      document.getElementById('close-order-form').addEventListener('click', closeOrderPlaceForm);
+    }
+
+    function updateOrderValue() {
+      const quantity = document.querySelector('input[name="quantity"]').value;
+      const limitPrice = document.querySelector('input[name="limitPrice"]').value;
+      const orderValue = quantity * limitPrice;
+      document.getElementById('order-value').textContent = orderValue.toFixed(2);
+
+      // Compare order value with cash balance
+
+      const modifiedOrderItem = document.getElementById('modified-order-item');
+
+      if (modifiedOrderItem) {
+        const cashBalanceElement = document.getElementById('cash-balance');
+        const cashBalanceElementValue = (cashAvailable - (orderValue - oldOrderValue)).toFixed(2);
+        cashBalanceElement.textContent = cashBalanceElementValue;
+        if (cashBalanceElementValue < 0) {
+          document.querySelector('input[name="limitPrice"]').style.color = 'red';
+          document.querySelector('input[name="quantity"]').style.color = 'red';
+          document.getElementById('order-value').style.color = 'red'
+        } else {
+          document.querySelector('input[name="limitPrice"]').style.color = 'black';
+          document.querySelector('input[name="quantity"]').style.color = 'black';
+          document.getElementById('order-value').style.color = 'black';
+        }
+        return;
+      } else {
+        document.getElementById('cash-balance').textContent = cashAvailable;
+      }
+
+      if (orderValue > cashAvailable) {
+        document.querySelector('input[name="limitPrice"]').style.color = 'red';
+        document.querySelector('input[name="quantity"]').style.color = 'red';
+        document.getElementById('order-value').style.color = 'red'
+      } else {
+        document.querySelector('input[name="limitPrice"]').style.color = 'black';
+        document.querySelector('input[name="quantity"]').style.color = 'black';
+        document.getElementById('order-value').style.color = 'black';
+      }
+    }
+
+    function createModifiedPlaceOrderForm(jData) {
+      const placeOrderListDiv = document.getElementById('place-order-list');
+      placeOrderListDiv.innerHTML = `
+      <span class="close-modal" id="close-order-form"></span>
+        <form id="place-order-form">
+          <div id="modified-order-item"></div>
+          <div id="place-order-top-label">
+            <label>Cash Balance: <span id="cash-balance"></span></label>
+            <label>Order Value: <span id="order-value"></span></label>
+          </div>
+          <label>Quantity:
+            <input type="number" name="quantity" value="${jData["qty"]}" min="1">
+          </label>
+          <label>Limit Price:
+            <input type="number" name="limitPrice" value="${jData["prc"]}" min="0" step="0.05">
+          </label>
+          <input type="hidden" name="token" value="${jData["token"]}">
+          <button type="submit">Submit Order</button>
+        </form>
+      `;
+
+      oldOrderValue = parseFloat(jData["qty"]) * parseFloat(jData["prc"]);
+
+      document.getElementById('cash-balance').textContent = cashAvailable.toFixed(2);
+      document.querySelector('input[name="quantity"]').addEventListener('input', updateOrderValue);
+      document.querySelector('input[name="limitPrice"]').addEventListener('input', updateOrderValue);
+      updateOrderValue();
+      document.getElementById('place-order-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const quantity = formData.get('quantity');
+        const limitPrice = formData.get('limitPrice');
+        const token = formData.get('token');
+
+        jData["qty"] = quantity.toString();
+        jData["prc"] = limitPrice.toString();
+        const jKey = userToken;
+        const balance = document.getElementById('cash-balance').textContent;
+        if (balance && parseFloat(balance) < 0) {
+          alert('Warning: Order value exceeds cash balance!');
+          return;
+        }
+        postRequest("modifyorder", jData, jKey)
+          .then((res) => {
+            const msgElement = document.getElementById('msg');
+            if (res.data && res.data.stat && res.data.stat === 'Ok') {
+              msgElement.innerHTML = 'Success';
+              msgElement.style.opacity = '1';
+              setTimeout(() => {
+                msgElement.style.opacity = '1';
+              }, 1500);
+              setTimeout(() => {
+                msgElement.style.opacity = '0';
+              }, 1500);
+
+              getOrders();
+            } else {
+              msgElement.innerHTML = 'Could not modify...';
+              msgElement.style.backgroundColor = '#e88888';
+              msgElement.style.opacity = '1';
+              setTimeout(() => {
+                msgElement.style.opacity = '1';
+
+              }, 1500);
+              updateOrderValue();
+              setTimeout(() => {
+                msgElement.style.opacity = '0';
+              }, 1500);
+            }
+          }).catch((err) => {
+            console.log(err);
+          });
+      });
+
+      document.getElementById('close-order-form').addEventListener('click', closeOrderPlaceForm);
+    }
+
+    function modifyOrder(modifyType, buttonElement) {
+      const parentElement = buttonElement.closest('div');
+      const norenordno = parentElement.getAttribute('norenordno');
+      var response;
+      var jData = {
+        norenordno: norenordno.toString(),
+        uid: uid
+      }
+      if (modifyType === 3) {
+        response = modifiedOrderPlace(norenordno, 'cancelorder', jData);
+      }
+
+      if (modifyType === 1) {
+        var prc = parseFloat(parentElement.getAttribute('prc'));
+        prc = prc - (prc / 300);
+        prc = Math.floor(prc / 0.05) * 0.05;
+        prc = prc.toFixed(2);
+        jData["tsym"] = parentElement.getAttribute('tsym');
+        jData["qty"] = parentElement.getAttribute('qty');
+        jData["exch"] = "NSE";
+        jData["prctyp"] = "LMT";
+        jData["prc"] = prc;
+        jData["ret"] = "DAY";
+        response = modifiedOrderPlace(norenordno, 'modifyorder', jData);
+      }
+
+      if (modifyType === 5) {
+        var prc = parseFloat(parentElement.getAttribute('prc'));
+        prc = prc + (prc / 300);
+        prc = Math.ceil(prc / 0.05) * 0.05;
+        prc = prc.toFixed(2);
+        jData["tsym"] = parentElement.getAttribute('tsym');
+        jData["qty"] = parentElement.getAttribute('qty');
+        jData["exch"] = "NSE";
+        jData["prctyp"] = "LMT";
+        jData["prc"] = prc;
+        jData["ret"] = "DAY";
+        response = modifiedOrderPlace(norenordno, 'modifyorder', jData);
+      }
+
+      if (modifyType === 2) {
+        var prc = parseFloat(parentElement.getAttribute('prc'));
+        jData["tsym"] = parentElement.getAttribute('tsym');
+        jData["qty"] = parentElement.getAttribute('qty');
+        jData["exch"] = "NSE";
+        jData["prctyp"] = "LMT";
+        jData["prc"] = prc;
+        jData["ret"] = "DAY";
+        jData["trantype"] = parentElement.getAttribute('trantype');
+        createModifiedPlaceOrderForm(jData);
+      }
+
+      if (response) {
+        response.then((res) => {
+          const msgElement = document.getElementById('msg');
+          if (res.data && res.data.stat && res.data.stat === 'Ok') {
+            msgElement.innerHTML = 'Success';
+            msgElement.style.opacity = '1';
+            setTimeout(() => {
+              msgElement.style.opacity = '1';
+            }, 1500);
+            setTimeout(() => {
+              msgElement.style.opacity = '0';
+            }, 1500);
+
+            getOrders();
+          } else {
+            msgElement.innerHTML = 'Could not modify...';
+            msgElement.style.backgroundColor = '#e88888';
+            msgElement.style.opacity = '1';
+            setTimeout(() => {
+              msgElement.style.opacity = '1';
+
+            }, 1500);
+            setTimeout(() => {
+              msgElement.style.opacity = '0';
+            }, 1500);
+          }
+        })
+      }
+    }
+
+    function modifiedOrderPlace(norenordno, modifyType, jData) {
+      return postRequest(modifyType, jData, userToken);
+    }
+
+    function showLoader() {
+      document.querySelector('.loader').style.display = 'block';
+    }
+
+    function hideLoader() {
+      document.querySelector('.loader').style.display = 'none';
+    }
+
+    function getOrders() {
+      const jData = {
+        uid: uid,
+      };
+      const jKey = userToken;
+      const res = postRequest("orderbook", jData, jKey);
+
+      res
+        .then((response) => {
+          const data = response.data;
+          document.getElementById('buy-order-list').innerHTML = '<h5>Buy orders:</h5>';
+          document.getElementById('sell-order-list').innerHTML = '<h5>Sell orders:</h5>';
+          var buyOrderCount = 0;
+          var sellOrderCount = 0;
+          var otherOrderCount = 0;
+
+          if (data && data.stat !== 'Not_Ok') {
+            data.forEach(order => {
+              if (order.stat === 'Ok' && order.trantype === 'B' && order.status != 'REJECTED' && order.status != 'CANCELED') {
+                buyOrderCount++;
+                generateOrderDetails(order, "buy-order-list", buyOrderCount);
+                if (orderNames[order.token] != order.tsym) {
+                  orderNames[order.token] = order.tsym;
+                  setTimeout(() => {
+                    subscribeTouchline([`NSE|${order.token}`]);
+                    if (!isSubscribedOrders) {
+                      subscribeOrderUpdate(uid);
+                      isSubscribedOrders = true;
+                    }
+                  }, 3000);
+                }
+              } else if (order.stat === 'Ok' && order.trantype === 'S' && order.status != 'REJECTED' && order.status != 'CANCELED') {
+                sellOrderCount++;
+                generateOrderDetails(order, "sell-order-list", sellOrderCount);
+                if (orderNames[order.token] != order.tsym) {
+                  orderNames[order.token] = order.tsym;
+                  setTimeout(() => {
+                    subscribeTouchline([`NSE|${order.token}`]);
+                    if (!isSubscribedOrders) {
+                      subscribeOrderUpdate(uid);
+                      isSubscribedOrders = true;
+                    }
+                  }, 3000);
+                }
+              } else {
+                otherOrderCount++;
+                generateOrderDetails(order, "other-order-list", otherOrderCount);
+              }
+            });
+          }
+        }).catch((err) => {
+          console.log(err);
+        });
+    }
+
+    function generateOrderDetails(order, id, count) {
+      const list = document.getElementById(id);
+      singleOrder = document.createElement('div');
+      singleOrder.classList.add('single-order-list');
+      singleOrder.innerHTML = `
+        <label>No. ${count}.&nbsp;</label>
+        <span>${order.tsym}&nbsp;&nbsp;</span>
+        <label>Order price:&nbsp</label><span>${order.prc}&nbsp;&nbsp;</span>
+        <label>Qty:&nbsp</label><span>${order.qty}&nbsp;&nbsp;</span>
+        <label>Status:&nbsp</label><span>${order.status}&nbsp;&nbsp;</span>
+      `;
+
+      if (id != "other-order-list") {
+        singleOrder.innerHTML += `<br><div norenordno="${order.norenordno}" prc="${order.prc}" tsym="${order.tsym}" qty="${order.qty}" trantype="${order.trantype}"><button class="auto" onclick="modifyOrder(1, this)">--</button><button class="modify" onclick="modifyOrder(2, this)">Modify</button><button class="cancel" onclick="modifyOrder(3, this)">Cancel</button><button class="auto" onclick="modifyOrder(4, this)">Auto</button><button class="cancel" onclick="modifyOrder(5, this)">++</button><button class="cancel" onclick="modifyOrder(6, this)">Fry</button></div>`;
+        const buttons = singleOrder.querySelectorAll('button');
+        var disabled = order.status != 'OPEN' ? true : false;
+
+        if (disabled) {
+          buttons.forEach(button => {
+            button.disabled = disabled;
+            button.classList.add('disabled-button');
+          });
+        }
+      }
+
+      if (count === 1) {
+        list.innerHTML = '';
+        if (id === 'buy-order-list') {
+          list.innerHTML = '<h5>Buy orders:</h5>';
+        } else if (id === 'sell-order-list') {
+          list.innerHTML = '<h5>Sell orders:</h5>';
+        } else {
+          list.innerHTML = '<h5>Other orders:</h5>';
+        }
+      }
+
+      list.appendChild(singleOrder);
+    }
+
+    //toggle switch action
+    var toggleSwitch = document.getElementById("toggleSwitch");
+    toggleSwitch.addEventListener('change', function () {
+      var isChecked = this.checked;
+      if (isChecked) {
+        analyzeStart = true;
+        startAnalyze();
+      } else {
+        stopAnalyze();
+      }
+    });
+
+    async function startAnalyze() {
+      while (analyzeStart) {
+        fetchTickerData();
+        try {
+          await new Promise((r) => setTimeout(r, 1000));
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+
+    function stopAnalyze() {
+      analyzeStart = false;
+    }
+
+    async function fetchTickerData() {
+      var res;
+      for (let index = 0; index < stockTickers.length; index++) {
+
+        const jData = {
+          uid: uid,
+          token: stockTickers[index].toString(),
+          exch: "NSE",
+        };
+        const jKey = userToken;
+
+        const res = postRequest("getquotes", jData, jKey);
+        //console.log(res.data);
+        res
+          .then((response) => {
+            const detailsData = response.data;
+            if (detailsData.stat === 'Ok') {
+              refreshCardData(detailsData);
+            } else if (detailsData.stat === 'Not_Ok') {
+              alert("Some error hapened during get the details");
+            } else {
+              console.log('Search failed:', detailsData.emsg);
+            }
+          }).catch((err) => {
+            console.log(err);
+          });
+      }
+    }
+
+    function refreshCardData(data) {
+      const card = document.getElementById('card-' + data['token']);
+      if (card) {
+        card.innerHTML = `
+          <div class="card-content">
+            <div class="close-modal" onclick="closeCard('${data.token}')"></div>
+            <div class="card-header">${data.tsym}</div>
+            <div class="info">
+              <div class="sub-info">
+                <label><button data-id="btn-buy-${data.token}" token="${data.token}" class="auto">Buy</button></label>
+                <label><p class="fontBolder">Last Price: </p><p>${data.lp}</p></label>
+                <label><p class="fontBolder">Prev close: </p><p>${data.c}</p></label>
+                <label><p class="fontBolder">Open: </p><p>${data.o}</p></label>
+                <label><p class="fontBolder">High: </p><p>${data.h}</p></label>
+                <label><p class="fontBolder">Low: </p><p>${data.l}</p></label>
+              </div>
+              <div class="sub-info">
+                <label><button data-id="btn-sell-${data.token}" token="${data.token}" class="cancel">Sell</button></label>
+                <label><p class="fontBolder">Avg Price: </p><p>${data.ap}</p></label>
+                <label><p class="fontBolder">Trade Time: </p><p>${data.ltt}</p></label>
+                <label><p class="fontBolder">Trade Qty: </p><p>${data.ltq}</p></label>
+                <label><p class="fontBolder">Buy Qty: </p><p>${data.tbq}</p></label>
+                <label><p class="fontBolder">Sell Qty: </p><p>${data.tsq}</p></label>
+              </div>
+            </div>
+            <div class="orders">
+              <div class="buy-orders">
+                <label class="fontBolder">Pending buy Orders: </label>
+                ${[1, 2, 3, 4, 5].map(i => data['bp' + i] ? (data['bp' + i] + ' * ' + data['bq' + i] + '<br>') : '').join('')}
+              </div>
+              <div class="sell-orders">
+                <label class="fontBolder">Pending sell Orders: </label>
+                ${[1, 2, 3, 4, 5].map(i => data['sp' + i] ? (data['sp' + i] + ' * ' + data['sq' + i] + '<br>') : '').join('')}
+              </div>
+            </div>
+          </div>
+        `;
+        document.querySelectorAll(`[data-id^="btn-buy-${data['token']}"]`).forEach(button => {
+          button.onclick = () => handleBuyButtonClick(data);
+        });
+        document.querySelectorAll(`[data-id^="btn-sell-${data['token']}"]`).forEach(button => {
+          button.onclick = () => handleSellButtonClick(data);
+        });
+      } else {
+        createStockCard(data);
+      }
+    }
+
+    function getBalance() {
+      const limitData = {
+        uid: uid,
+        actid: uid,
+      };
+      postRequest('limits', limitData, userToken)
+        .then(res => {
+          const value = res.data;
+          if (value.stat && value.stat.toLowerCase() === 'Ok'.toLowerCase() && value.cash) {
+            totalCash = parseFloat(value.cash);
+            if (value.pendordval) {
+              cashAvailable = parseFloat(value.cash) - parseFloat(value.pendordval);
+            }
+            else {
+              cashAvailable = parseFloat(value.cash);
+            }
+            document.getElementById('nav-bar-cash-balance').innerHTML = 'Balance: ' + '&#8377; ' + totalCash;
+            const balanceElemetInOrder = document.getElementById('cash-balance');
+            if (balanceElemetInOrder) {
+              balanceElemetInOrder.textContent = cashAvailable.toFixed(2);
+            }
+          }
+        });
+    }
+  </script>
+</body>
+
+</html>

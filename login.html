@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login to shoonya</title>
+  <style>
+    * {
+      top: 0;
+      left: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    html {
+      overflow-x: hidden;
+      overflow-y: scroll;
+      width: 100%;
+      height: auto;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      display: block;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #login-container {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .loading-icon {
+      display: none;
+    }
+
+    .loading {
+      display: none;
+    }
+
+    .loading.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="login-container">
+    <h1>Login</h1>
+    <input type="password" id="password" placeholder="Enter your password">
+    <input type="text" id="totp" placeholder="Enter TOTP">
+    <button onclick="login()">Login</button>
+    <div class="loading">
+      <div class="loading-icon"></div>
+    </div>
+  </div>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const apiUrl = 'https://api.shoonya.com/NorenWClientTP/QuickAuth';
+    const localStorageKey = 'userToken'; // Key to store susertoken in localStorage
+    const loadingIcon = document.querySelector(".loading-icon");
+    const loadingContainer = document.querySelector(".loading");
+
+    async function login() {
+      var password = document.getElementById('password').value;
+      const totp = document.getElementById('totp').value;
+      password = await sha256(password)
+
+      const jData = {
+        "apkversion": "1.0.0",
+        "uid": "FA340810",
+        "pwd": password,
+        "factor2": totp.toString(),
+        "vc": "FA340810_U",
+        "appkey": "6a830365ee72c6eb9b294afc9510472e04764d73ab22bb5b3b39b7a1af92c320",
+        "imei": "abc1234",
+        "source": "API",
+      };
+
+      try {
+        loadingIcon.style.display = "block"
+        await fetch(apiUrl, {
+          method: 'POST',
+          body: `jData=${JSON.stringify(jData)}`,
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+          }
+        })
+          .then((res) => res.json())
+          .then(data => {
+            if (data.stat === 'Ok') {
+              localStorage.setItem(localStorageKey, data.susertoken);
+              loadingContainer.style.display = "none";
+              window.location.href = 'dashboard.html';
+            } else {
+              alert('Login failed. Please check your password.');
+            }
+          });
+      } catch (error) {
+        console.error('Error during login:', error);
+      }
+    }
+
+    const userToken = localStorage.getItem(localStorageKey);
+    if (userToken) {
+      document.getElementById('login-container').style.display = 'none';
+      document.body.innerHTML += '<p>You are already logged in. Redirecting to dashboard.</p>';
+      setTimeout(() => {
+        window.location.href = './index.html';
+      }, 1000);
+    }
+
+    function sha256(input) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(input);
+      return crypto.subtle.digest('SHA-256', data)
+        .then(buffer => {
+          const hashArray = Array.from(new Uint8Array(buffer));
+          const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          return hashHex;
+        });
+    }
+  </script>
+</body>
+
+</html>
