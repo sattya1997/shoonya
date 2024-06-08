@@ -282,7 +282,19 @@ function generateTable(data) {
     const row = table.insertRow();
     headers.forEach((header) => {
       const cell = row.insertCell();
-      cell.textContent = item[header];
+      if(header === "time") {
+        const date = new Date(parseInt(item[header]) * 1000);
+        let options = {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true, // Enable 12-hour format with AM/PM
+        };
+        const time = date.toLocaleTimeString("en-US", options);
+        cell.textContent = time;
+      } else {
+        cell.textContent = item[header];
+      }
     });
   });
 
