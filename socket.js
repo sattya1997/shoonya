@@ -269,7 +269,7 @@ function saveFile() {
 function generateTable(data) {
   const table = document.createElement("table");
   // Add table headers based on the object keys
-  const headers = Object.keys(data[0]);
+  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty"];
   const headerRow = table.insertRow();
   headers.forEach((headerText) => {
     const headerCell = document.createElement("th");
