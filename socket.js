@@ -231,29 +231,31 @@ document
 
 function storeDepth(data) {
   depthData = {};
-
-  if (data.tk) {
-    depthData.token = data.tk;
+  
+  if (data.bp1 || data.bq1 || data.sp1 || data.sq1 || data.v) {
+    if (data.tk) {
+      depthData.token = data.tk;
+    }
+    if (data.ft) {
+      depthData.time = data.ft;
+    }
+    if (data.bp1) {
+      depthData.buyPrice = data.bp1;
+    }
+    if (data.bq1) {
+      depthData.buyQty = data.bq1;
+    }
+    if (data.sp1) {
+      depthData.sellPrice = data.sp1;
+    }
+    if (data.sq1) {
+      depthData.sellQty = data.sq1;
+    }
+    if (data.v) {
+      depthData.vol = data.v;
+    }
+    depthDataArray.push(depthData);
   }
-  if (data.ft) {
-    depthData.time = data.ft;
-  }
-  if (data.bp1) {
-    depthData.buyPrice = data.bp1;
-  }
-  if (data.bq1) {
-    depthData.buyQty = data.bq1;
-  }
-  if (data.sp1) {
-    depthData.sellPrice = data.sp1;
-  }
-  if (data.sq1) {
-    depthData.sellQty = data.sq1;
-  }
-  if (data.v) {
-    depthData.vol = data.v;
-  }
-  depthDataArray.push(depthData);
 }
 
 function saveFile() {
