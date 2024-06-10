@@ -223,7 +223,8 @@ document
   .addEventListener("change", function () {
     isChecked = this.checked;
     if (isChecked) {
-      generateTable(depthDataArray)
+      generateTable(depthDataArray);
+      document.getElementById("table-list").display = 'block';
     } else {
       document.getElementById("table-list").innerHTML = '';
     }
