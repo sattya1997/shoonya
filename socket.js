@@ -193,15 +193,39 @@ function createOrdersDataField(data) {
   }
 
   if (isStoreDepth) {
-    storeDepth(data);
+    const depthData = storeDepth(data);
+    
+    if (document.getElementById("enable-show-hide").checked && depthData.time) {
+      addDepthRow(depthData);
+    }
   }
 }
 
-// if(isStoreDepth) {
-//   if(stockToken === data.tk) {
-//     storeDepth(data);
-//   }
-// }
+  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty"];
+  
+function addDepthRow(data) {
+  var table = document.getElementById('table-list').getElementsByTagName('tbody')[0];
+  if(table) {
+    var newRow = table.insertRow();
+      headers.forEach((header) => {
+        const cell = newRow.insertCell();
+        if(header === "time") {
+          const date = new Date(parseInt(data[header]) * 1000);
+          let options = {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true,
+          };
+          const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
+          cell.textContent = time;
+        } else {
+          cell.textContent = data[header];
+        }
+      });
+    });
+  }
+}
 
 var depthDataArray = [];
 
@@ -214,6 +238,7 @@ document
 document
   .getElementById("clear-button")
   .addEventListener("click", function () {
+    document.getElementById("table-list").style.display = "none";
     document.getElementById("table-list").innerHTML = '';
     depthDataArray = [];
   });
@@ -224,7 +249,7 @@ document
     isChecked = this.checked;
     if (isChecked) {
       generateTable(depthDataArray);
-      document.getElementById("table-list").display = 'block';
+      document.getElementById("table-list").style.display = 'block';
     } else {
       document.getElementById("table-list").innerHTML = '';
     }
@@ -257,6 +282,7 @@ function storeDepth(data) {
     }
     depthDataArray.push(depthData);
   }
+  return depthData;
 }
 
 function saveFile() {
@@ -289,8 +315,6 @@ function saveFile() {
 
 function generateTable(data) {
   const table = document.createElement("table");
-  // Add table headers based on the object keys
-  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty"];
   const headerRow = table.insertRow();
   headers.forEach((headerText) => {
     const headerCell = document.createElement("th");
@@ -311,7 +335,7 @@ function generateTable(data) {
           second: "2-digit",
           hour12: true, // Enable 12-hour format with AM/PM
         };
-        const time = date.toLocaleTimeString("en-US", options);
+        const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
         cell.textContent = time;
       } else {
         cell.textContent = item[header];
