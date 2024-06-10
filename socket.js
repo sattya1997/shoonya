@@ -212,6 +212,13 @@ document
   });
   
 document
+  .getElementById("clear-button")
+  .addEventListener("click", function () {
+    document.getElementById("table-list").innerHTML = '';
+    depthDataArray = '';
+  });
+  
+document
   .getElementById("enable-show-hide")
   .addEventListener("change", function () {
     isChecked = this.checked;
