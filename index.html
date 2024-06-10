@@ -667,7 +667,7 @@
       color: white;
       width: 100%;
       max-width: 700px;
-      font-size: 12px;
+      font-size: 10px;
     }
 
     #depth-toolbar span {
@@ -690,6 +690,7 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      font-size: 10px;
     }
 
     #depth-toolbar button:hover {
@@ -759,9 +760,9 @@
     <div id="depth-toolbar">
       <span><label for="enable-checkbox">Enable Depth</label><input type="checkbox" id="enable-checkbox"></span>
       <span><label for="enable-checkbox">Show/Hide</label><input type="checkbox" id="enable-show-hide"></span>
+      <span><button id="clear-button">Clear</button></span>
       <span><button id="save-button">Download</button></span>
       <span>
-        <label for="custom-file-upload-button">Choose</label>
         <button id="custom-file-upload-button" class="custom-file-upload">File</button>
         <input type="file" id="file-input" accept=".json" style="display: none;">
       </span>
