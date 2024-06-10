@@ -223,7 +223,6 @@ function addDepthRow(data) {
           cell.textContent = data[header];
         }
       });
-    });
   }
 }
 
