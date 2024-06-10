@@ -215,7 +215,7 @@ document
   .getElementById("clear-button")
   .addEventListener("click", function () {
     document.getElementById("table-list").innerHTML = '';
-    depthDataArray = '';
+    depthDataArray = [];
   });
   
 document
