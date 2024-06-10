@@ -203,13 +203,24 @@ function createOrdersDataField(data) {
 //   }
 // }
 
+var depthDataArray = [];
+
 document
   .getElementById("enable-checkbox")
   .addEventListener("change", function () {
     isStoreDepth = this.checked;
   });
-
-var depthDataArray = [];
+  
+document
+  .getElementById("enable-show-hide")
+  .addEventListener("change", function () {
+    isChecked = this.checked;
+    if (isChecked) {
+      generateTable(depthDataArray)
+    } else {
+      document.getElementById("table-list").innerHTML = '';
+    }
+  });
 
 function storeDepth(data) {
   depthData = {};
