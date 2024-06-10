@@ -250,6 +250,7 @@ document
       generateTable(depthDataArray);
       document.getElementById("table-list").style.display = 'block';
     } else {
+      document.getElementById("table-list").style.display = "none";
       document.getElementById("table-list").innerHTML = '';
     }
   });
