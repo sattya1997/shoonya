@@ -42,6 +42,9 @@ function connectWebSocket() {
     websocket.send(JSON.stringify(connectRequest));
     setTimeout(() => {
       subscribeTouchline(["NSE|26000"]);
+      Object.values(orderNames).forEach(orderToken => {
+        subscribeTouchline([`NSE|${orderToken}`]);
+      });
     }, 3000);
   };
 
