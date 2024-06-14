@@ -224,6 +224,7 @@ function addDepthRow(data) {
           cell.textContent = time;
         } else if (header === "token") {
           const name = orderNames[data[header]].split('-')[0];
+          cell.textContent = name;
         }
         else {
           cell.textContent = data[header];
@@ -348,6 +349,7 @@ function generateTable(data) {
         cell.textContent = time;
       } else if (header === "token") {
           const name = orderNames[item[header]].split('-')[0];
+          cell.textContent = name;
         }
       else {
         cell.textContent = item[header];
