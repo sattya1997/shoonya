@@ -29,7 +29,7 @@ function connectWebSocket() {
       if (hasConnection) {
         websocket.send(_hb_req);
       }
-    }, 7000);
+    }, 5000);
 
     const connectRequest = {
       t: "c",
@@ -42,7 +42,7 @@ function connectWebSocket() {
     websocket.send(JSON.stringify(connectRequest));
     setTimeout(() => {
       subscribeTouchline(["NSE|26000"]);
-      Object.values(orderNames).forEach(orderToken => {
+      Object.keys(orderNames).forEach(orderToken => {
         subscribeTouchline([`NSE|${orderToken}`]);
       });
     }, 3000);
