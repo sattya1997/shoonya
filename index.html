@@ -1153,7 +1153,7 @@
       };
       const jKey = userToken;
 
-      if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+      if (orderType === "buy" && (parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
         alert('Warning: Order value exceeds cash balance!');
         return;
       }
@@ -1226,7 +1226,7 @@
         const limitPrice = formData.get('limitPrice');
         const token = formData.get('token');
 
-        if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+        if (orderType === "buy" && (parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
           alert('Warning: Order value exceeds cash balance!');
           return;
         }
