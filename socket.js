@@ -222,7 +222,10 @@ function addDepthRow(data) {
           };
           const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
           cell.textContent = time;
-        } else {
+        } else if (header === "token") {
+          const name = orderNames[data[header]].split('-')[0];
+        }
+        else {
           cell.textContent = data[header];
         }
       });
@@ -343,7 +346,10 @@ function generateTable(data) {
         };
         const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
         cell.textContent = time;
-      } else {
+      } else if (header === "token") {
+          const name = orderNames[item[header]].split('-')[0];
+        }
+      else {
         cell.textContent = item[header];
       }
     });
