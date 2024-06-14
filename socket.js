@@ -261,7 +261,7 @@ document
 function storeDepth(data) {
   depthData = {};
   
-  if (data.bp1 || data.bq1 || data.sp1 || data.sq1 || data.v) {
+  if (data.bp1 || data.bq1 || data.sp1 || data.sq1 || data.v || data.lp) {
     if (data.tk) {
       depthData.token = data.tk;
     }
