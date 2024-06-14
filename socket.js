@@ -204,7 +204,7 @@ function createOrdersDataField(data) {
   }
 }
 
-  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty"];
+  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty", "curPrice"];
   
 function addDepthRow(data) {
   var table = document.getElementById('table-list').getElementsByTagName('tbody')[0];
@@ -282,6 +282,9 @@ function storeDepth(data) {
     }
     if (data.v) {
       depthData.vol = data.v;
+    }
+    if (data.lp) {
+      depthData.curPrice = data.lp;
     }
     depthDataArray.push(depthData);
   }
