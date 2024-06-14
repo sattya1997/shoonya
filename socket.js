@@ -43,8 +43,8 @@ function connectWebSocket() {
     setTimeout(() => {
       subscribeTouchline(["NSE|26000"]);
       Object.keys(orderNames).forEach(orderToken => {
-        subscribeTouchline([`NSE|${orderToken}`]);
-      });
+        subscribeTouchline([`NSE|${orderToken}`]);
+      });
     }, 3000);
   };
 
@@ -207,30 +207,30 @@ function createOrdersDataField(data) {
   const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty", "curPrice"];
   
 function addDepthRow(data) {
-  var table = document.getElementById('table-list').getElementsByTagName('tbody')[0];
-  if(table) {
-    var newRow = table.insertRow();
-      headers.forEach((header) => {
-        const cell = newRow.insertCell();
-        if(header === "time") {
-          const date = new Date(parseInt(data[header]) * 1000);
-          let options = {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          };
-          const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
-          cell.textContent = time;
-        } else if (header === "token") {
+  var table = document.getElementById('table-list').getElementsByTagName('tbody')[0];
+   if(table) {
+    var newRow = table.insertRow();
+    headers.forEach((header) => {
+      const cell = newRow.insertCell();
+      if(header === "time") {
+        const date = new Date(parseInt(data[header]) * 1000);
+        let options = {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      };
+const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
+cell.textContent = time;
+        } else if (header === "token") {
           const name = orderNames[data[header]].split('-')[0];
           cell.textContent = name;
         }
         else {
           cell.textContent = data[header];
         }
-      });
-  }
+      });
+    }
 }
 
 var depthDataArray = [];
@@ -338,15 +338,15 @@ function generateTable(data) {
     headers.forEach((header) => {
       const cell = row.insertCell();
       if(header === "time") {
-        const date = new Date(parseInt(item[header]) * 1000);
-        let options = {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true, // Enable 12-hour format with AM/PM
-        };
-        const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
-        cell.textContent = time;
+        const date = new Date(parseInt(item[header]) * 1000);
+        let options = {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true, // Enable 12-hour format with AM/PM
+        };
+        const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
+        cell.textContent = time;
       } else if (header === "token") {
           const name = orderNames[item[header]].split('-')[0];
           cell.textContent = name;
