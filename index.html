@@ -31,9 +31,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 40px;
+      height: 25px;
       background-color: rgb(28, 28, 28);
       color: aliceblue;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     #nav-bar button {
@@ -177,6 +180,8 @@
       height: auto;
       transition: all 0.3s ease;
       margin: -10px -5px 0 0;
+      position: sticky;
+      z-index: 10;
     }
 
     .close-modal:after {
@@ -738,6 +743,8 @@
     table th {
       background-color: #3498db;
       color: white;
+      position: sticky;
+      top: 0;
     }
 
     table tr {
@@ -1151,7 +1158,7 @@
       };
       const jKey = userToken;
 
-      if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+      if (orderType === "buy" && (parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
         alert('Warning: Order value exceeds cash balance!');
         return;
       }
@@ -1224,7 +1231,7 @@
         const limitPrice = formData.get('limitPrice');
         const token = formData.get('token');
 
-        if ((parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
+        if (orderType === "buy" && (parseFloat(quantity) * parseFloat(limitPrice)) > cashAvailable) {
           alert('Warning: Order value exceeds cash balance!');
           return;
         }

@@ -32,6 +32,8 @@
     }
 
     #login-container {
+      display: flex;
+      flex-direction: column;
       background-color: #ffffff;
       border-radius: 8px;
       padding: 20px;
@@ -68,39 +70,39 @@
     button:hover {
       background-color: #0056b3;
     }
-
-    .loading-icon {
-      display: none;
+    button:active {
+      background-color: #0056b3;
+      transform: scale(1.1);
     }
 
-    .loading {
+    .loader{
+      border: 4px solid #292424;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      animation: spin 1s ease infinite;
       display: none;
-    }
-
-    .loading.active {
-      display: block;
+      align-self: center;
     }
   </style>
 </head>
 
 <body>
   <div id="login-container">
+    <div class="loader"></div>
     <h1>Login</h1>
     <input type="password" id="password" placeholder="Enter your password">
     <input type="text" id="totp" placeholder="Enter TOTP">
     <button onclick="login()">Login</button>
-    <div class="loading">
-      <div class="loading-icon"></div>
-    </div>
   </div>
   <script src="./axios.min.js"></script>
   <script>
     const apiUrl = 'https://api.shoonya.com/NorenWClientTP/QuickAuth';
-    const localStorageKey = 'userToken'; // Key to store susertoken in localStorage
-    const loadingIcon = document.querySelector(".loading-icon");
-    const loadingContainer = document.querySelector(".loading");
+    const localStorageKey = 'userToken';
 
     async function login() {
+      showLoader();
       var password = document.getElementById('password').value;
       const totp = document.getElementById('totp').value;
       password = await sha256(password)
@@ -117,7 +119,6 @@
       };
 
       try {
-        loadingIcon.style.display = "block"
         await fetch(apiUrl, {
           method: 'POST',
           body: `jData=${JSON.stringify(jData)}`,
@@ -128,14 +129,15 @@
           .then((res) => res.json())
           .then(data => {
             if (data.stat === 'Ok') {
+              hideLoader();
               localStorage.setItem(localStorageKey, data.susertoken);
-              loadingContainer.style.display = "none";
               window.location.href = './index.html';
             } else {
               alert('Login failed. Please check your password.');
             }
           });
       } catch (error) {
+        hideLoader();
         console.error('Error during login:', error);
       }
     }
@@ -159,6 +161,14 @@
           return hashHex;
         });
     }
+    
+    function showLoader() {
+      document.querySelector('.loader').style.display = 'block';
+    }
+ 
+    function hideLoader() {
+      document.querySelector('.loader').style.display = 'none';
+    }
   </script>
 </body>
 
