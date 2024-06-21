@@ -381,7 +381,9 @@ function generateTable(data, fileUpload = false) {
 const fileInput = document.getElementById("file-input");
 const customButton = document.getElementById("custom-file-upload-button");
 
-customButton.addEventListener("click", function () {});
+customButton.addEventListener("click", function () {
+  fileInput.click();
+});
 
 fileInput.addEventListener("change", function (event) {
   const file = event.target.files[0];
