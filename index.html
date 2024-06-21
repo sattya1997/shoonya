@@ -117,25 +117,23 @@
     }
 
     #search-result-container {
-      position: absolute;
-      top: 24%;
-      left: 50%;
-      transform: translateX(-50%);
+      position: sticky;
       background-color: #fff;
       border: 1px solid #ccc;
       border-radius: 4px;
       max-height: 250px;
       overflow-y: auto;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      padding: 10px;
+      padding: 0 5px 0 5px;
       overflow-x: hidden;
       display: none;
       z-index: 5;
+      margin-top: -19px;
     }
 
     #results-list {
       list-style: none;
-      padding: 10px 10px 10px 10px;
+      padding: 0px 16px 10px 16px;
       border-radius: 7px;
       text-align: center;
       font-size: 11px;
@@ -145,12 +143,15 @@
 
     #results-list button {
       width: 35%;
-      background-color: #518fd1;
-      border: 1px solid rgb(0, 79, 206);
       border-radius: 2px;
       transition: transform 0.3s ease;
       color: white;
       font-weight: 600;
+      max-width: 40px;
+      font-size: 9px;
+      border: none;
+      border-radius: 2px;
+      height: 20px;
     }
 
     #results-list button:hover {
@@ -163,23 +164,24 @@
     }
 
     .result-item {
-      background-color: #f9f9f9;
-      border: 1px solid #e1e1e1;
-      margin-top: 5px;
-      padding: 10px;
-      border-radius: 4px;
+      border-bottom: 1px solid #e1e1e1;
+      padding: 5px;
+    }
+
+    .result-item > span:first-child {
+      font-weight: 500;
     }
 
     .close-modal {
       float: right;
       cursor: pointer;
       color: red;
-      font-size: 18px;
+      font-size: 15px;
       border: none;
       width: auto;
       height: auto;
       transition: all 0.3s ease;
-      margin: -10px -5px 0 0;
+      margin: -10px 0 0 0;
       position: sticky;
       z-index: 10;
     }
@@ -198,10 +200,9 @@
 
     .search-list-btn {
       height: 20px;
-      margin-left: 10px;
-      font-size: 10px;
       text-align: center;
-      font-weight: 600;
+      background-color: #518fd1;
+      border: 1px solid rgb(0, 79, 206);
     }
 
     #details-list {
@@ -791,7 +792,6 @@
         <ul id="results-list"></ul>
       </div>
     </div>
-    <div class="loader"></div>
     <label class="switch">
       <input type="checkbox" id="toggleSwitch">
       <span class="slider round"></span>
@@ -867,7 +867,6 @@
       const searchInput = document.getElementById('search-input');
 
       if (searchInput.value === '' | searchInput.value === undefined) {
-        alert('Please type first before searching');
         return;
       }
       const jData = {
@@ -876,7 +875,6 @@
         exch: ["NSE", "BSE"],
       };
       const jKey = userToken;
-      showLoader();
 
       const res = postRequest("searchscrip", jData, jKey);
 
@@ -891,14 +889,33 @@
                 <li class="result-item">
                   <span>${item.exch}: ${item.tsym} - ${item.token}</span><br>
                   <span>
-                    <button class="search-list-btn" onclick="addTodetailsList('${item.token}')">Add card</button>
-                    <button class="search-list-btn" onclick="addToTagList('${item.token}', '${item.tsym}')">Add tag</button>
+                    <button data-id="btn-buy-list-${item.token}" token="${item.token}" class="auto">Buy</button>
+                    <button class="search-list-btn" onclick="addTodetailsList('${item.token}')">Card</button>
+                    <button class="search-list-btn" onclick="addToTagList('${item.token}', '${item.tsym}')">Tag</button>
+                    <button data-id="btn-sell-list-${item.token}" token="${item.token}" class="cancel">Sell</button>
                   </span>
                 </li>
               `;
             });
             resultsList.innerHTML = htmlData;
-            hideLoader();
+            const buyButtons = document.querySelectorAll('[data-id^="btn-buy-list-"]');
+            // Add a click event listener to each buy and sell button
+            for (let index = 0; index < buyButtons.length; index++) {
+              const button = buyButtons[index];
+              const token = button.getAttribute('token');
+              button.addEventListener('click', () => {
+                handleBuySellButtonClickFromResultsList(token, 'buy');
+              });
+            }
+            const sellButtons = document.querySelectorAll('[data-id^="btn-sell-list-"]');
+            // Add a click event listener to each button
+            for (let index = 0; index < sellButtons.length; index++) {
+              const button = sellButtons[index];
+              const token = button.getAttribute('token');
+              button.addEventListener('click', () => {
+                handleBuySellButtonClickFromResultsList(token, 'sell');
+              });
+            }
             document.getElementById("search-result-container").style.display = "block";
           } else if (data.stat === 'Not_Ok') {
             window.location.href = "./login.html";
@@ -907,8 +924,11 @@
           }
         }).catch((err) => {
           console.log(err);
-          hideLoader();
         });
+    }
+
+    async function handleBuySellButtonClickFromResultsList(token, btnType) {
+      getDetails(token, false, btnType);
     }
 
     function addToTagList(token, name) {
@@ -921,7 +941,7 @@
       const detailsData = getDetails(token);
     }
 
-    async function getDetails(token) {
+    async function getDetails(token, createCard = true, btnType = 'none') {
       const jData = {
         uid: uid,
         token: token.toString(),
@@ -935,8 +955,16 @@
         .then((response) => {
           const detailsData = response.data;
           if (detailsData.stat === 'Ok') {
-            createStockCard(detailsData);
-            closeSearchList();
+            if (createCard) {
+              createStockCard(detailsData);
+            } else {
+              if (btnType === 'buy') {
+                createPlaceOrderForm(detailsData, "buy");
+              }
+              if (btnType === 'sell') {
+                createPlaceOrderForm(detailsData, "sell");
+              }
+            }
           } else if (detailsData.stat === 'Not_Ok') {
             alert("Some error hapened during get the details");
           } else {
@@ -1718,6 +1746,18 @@
           }
         });
     }
+
+    let searchTimeout;
+    searchInput.addEventListener('keyup', function (event) {
+      if (event.key === 'Enter') {
+        searchScrip();
+      } else {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          searchScrip();
+        }, 500);
+      }
+    });
   </script>
 </body>
 

@@ -42,7 +42,7 @@ function connectWebSocket() {
     websocket.send(JSON.stringify(connectRequest));
     setTimeout(() => {
       subscribeTouchline(["NSE|26000"]);
-      Object.keys(orderNames).forEach(orderToken => {
+      Object.keys(orderNames).forEach((orderToken) => {
         subscribeTouchline([`NSE|${orderToken}`]);
       });
     }, 3000);
@@ -197,40 +197,52 @@ function createOrdersDataField(data) {
 
   if (isStoreDepth) {
     const depthData = storeDepth(data);
-    
+
     if (document.getElementById("enable-show-hide").checked && depthData.time) {
       addDepthRow(depthData);
     }
   }
 }
 
-  const headers = ["token", "time", "buyPrice", "buyQty", "vol", "sellPrice", "sellQty", "curPrice"];
-  
+const headers = [
+  "token",
+  "time",
+  "buyPrice",
+  "buyQty",
+  "vol",
+  "sellPrice",
+  "sellQty",
+  "curPrice",
+];
+
 function addDepthRow(data) {
-  var table = document.getElementById('table-list').getElementsByTagName('tbody')[0];
-   if(table) {
+  var table = document
+    .getElementById("table-list")
+    .getElementsByTagName("tbody")[0];
+  if (table) {
     var newRow = table.insertRow();
     headers.forEach((header) => {
       const cell = newRow.insertCell();
-      if(header === "time") {
+      if (header === "time") {
         const date = new Date(parseInt(data[header]) * 1000);
         let options = {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      };
-const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
-cell.textContent = time;
-        } else if (header === "token") {
-          const name = orderNames[data[header]].split('-')[0];
-          cell.textContent = name;
-        }
-        else {
-          cell.textContent = data[header];
-        }
-      });
-    }
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        };
+        const time = date
+          .toLocaleTimeString("en-US", options)
+          .replace(/ ?(AM|PM)$/i, "");
+        cell.textContent = time;
+      } else if (header === "token") {
+        const name = orderNames[data[header]].split("-")[0];
+        cell.textContent = name;
+      } else {
+        cell.textContent = data[header];
+      }
+    });
+  }
 }
 
 var depthDataArray = [];
@@ -240,31 +252,29 @@ document
   .addEventListener("change", function () {
     isStoreDepth = this.checked;
   });
-  
-document
-  .getElementById("clear-button")
-  .addEventListener("click", function () {
-    document.getElementById("table-list").style.display = "none";
-    document.getElementById("table-list").innerHTML = '';
-    depthDataArray = [];
-  });
-  
+
+document.getElementById("clear-button").addEventListener("click", function () {
+  document.getElementById("table-list").style.display = "none";
+  document.getElementById("table-list").innerHTML = "";
+  depthDataArray = [];
+});
+
 document
   .getElementById("enable-show-hide")
   .addEventListener("change", function () {
     isChecked = this.checked;
     if (isChecked) {
       generateTable(depthDataArray);
-      document.getElementById("table-list").style.display = 'block';
+      document.getElementById("table-list").style.display = "block";
     } else {
       document.getElementById("table-list").style.display = "none";
-      document.getElementById("table-list").innerHTML = '';
+      document.getElementById("table-list").innerHTML = "";
     }
   });
 
 function storeDepth(data) {
   depthData = {};
-  
+
   if (data.bp1 || data.bq1 || data.sp1 || data.sq1 || data.v || data.lp) {
     if (data.tk) {
       depthData.token = data.tk;
@@ -323,7 +333,7 @@ function saveFile() {
 // subscribeOrderUpdate('your_account_id');
 // unsubscribeOrderUpdate();
 
-function generateTable(data) {
+function generateTable(data, fileUpload = false) {
   const table = document.createElement("table");
   const headerRow = table.insertRow();
   headers.forEach((headerText) => {
@@ -337,7 +347,7 @@ function generateTable(data) {
     const row = table.insertRow();
     headers.forEach((header) => {
       const cell = row.insertCell();
-      if(header === "time") {
+      if (header === "time") {
         const date = new Date(parseInt(item[header]) * 1000);
         let options = {
           hour: "2-digit",
@@ -345,31 +355,34 @@ function generateTable(data) {
           second: "2-digit",
           hour12: true, // Enable 12-hour format with AM/PM
         };
-        const time = date.toLocaleTimeString("en-US", options).replace(/ ?(AM|PM)$/i, '');
+        const time = date
+          .toLocaleTimeString("en-US", options)
+          .replace(/ ?(AM|PM)$/i, "");
         cell.textContent = time;
-      } else if (header === "token") {
-          const name = orderNames[item[header]].split('-')[0];
-          cell.textContent = name;
+      } else if (header === "token") {
+        var name = "";
+        if (!fileUpload) {
+          name = orderNames[item[header]].split("-")[0];
+        } else {
+          name = orderNames[item[header]];
         }
-      else {
-        cell.textContent = item[header];
-      }
+        cell.textContent = name;
+      } else {
+        cell.textContent = item[header];
+      }
     });
   });
 
-  // Append the table to the div with id 'table-list'
   const tableList = document.getElementById("table-list");
-  tableList.innerHTML = ""; // Clear any existing content
+  tableList.innerHTML = "";
   tableList.appendChild(table);
 }
 
-// Event listener for file extraction
 const fileInput = document.getElementById("file-input");
 const customButton = document.getElementById("custom-file-upload-button");
 
-// Event listener for the custom button click
 customButton.addEventListener("click", function () {
-  fileInput.click(); // Trigger the hidden file input click
+  fileInput.click();
 });
 
 fileInput.addEventListener("change", function (event) {
@@ -378,7 +391,7 @@ fileInput.addEventListener("change", function (event) {
     const reader = new FileReader();
     reader.onload = function (e) {
       const data = JSON.parse(e.target.result);
-      generateTable(data); // Generate the table with the extracted data
+      generateTable(data, true);
     };
     reader.readAsText(file);
   }
