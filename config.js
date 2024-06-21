@@ -70,6 +70,21 @@ var oldOrderValue = 0;
 
 var orderValid = false;
 
+//automate vars
+var standardDeviationWithSma = [];
+var stockSymbolList = ["CESC-EQ","ICICIB22-EQ", "TATAMOTORS-EQ","OIL-EQ","ONGC-EQ","NCC-EQ"];
+var stockAnalyzeData = {};
+var LTA = 0;
+var STA = 0;
+var DTA = 0;
+var RSI = 0;
+var LTUB = 0;
+var STUB = 0;
+var LTLB = 0;
+var STLB = 0;
+var LTMB = 0;
+var STMB = 0;
+
 class CircularBuffer {
   constructor(size) {
     this.buffer = new Array(size);
